@@ -22,8 +22,12 @@ fetch(`http://localhost:3000/api/products/${id}`)
       document.querySelector(
         "#description"
       ).innerText += `${singleProduct.description}`;
-      document.querySelectorAll(
-        "option"
-      ).innerHTML += `${singleProduct.colors}`;
+      for (let color of singleProduct.colors) {
+        document.querySelector(
+          "#colors"
+        ).innerHTML += `<option value="">${color}</option>`;
+      }
     }
   });
+
+function colors(color) {}
