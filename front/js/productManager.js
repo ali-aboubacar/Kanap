@@ -6,26 +6,49 @@ const queryString_urlId = window.location.search;
 const urlSearchParams = new URLSearchParams(queryString_urlId);
 //on recupere le name= just avant l'id
 const id = urlSearchParams.get("id");
+//on fait reference au config.json pour le developpement ou production
+loadConfig().then((data) => {
+  config = data;
 
-fetch(`http://localhost:3000/api/products/${id}`) //grace au accent grave on integre le const declarer juste avant
-  .then((data) => data.json())
-  //on recupere le produit dans un tableau
-  .then((singleProduct) => {
-    //si la variable enregistre par le urlSearchParams = id du tableau effectue le code suivant
-    if (id == singleProduct._id) {
-      document.querySelector("#title").innerText += `${singleProduct.name}`;
-      document.querySelector(
-        ".item__img"
-      ).innerHTML += `<img src="${singleProduct.imageUrl}" alt="${singleProduct.altTxt}">`;
-      document.querySelector("#price").innerText += `${singleProduct.price}`;
-      document.querySelector(
-        "#description"
-      ).innerText += `${singleProduct.description}`;
-      // vue que colors est un tableau on va faire un loop pour le parcourire
-      for (let color of singleProduct.colors) {
+  fetch(config.host + `/api/products/${id}`) //grace au accent grave on integre le const declarer juste avant
+    .then((data) => data.json())
+    //on recupere le produit dans un tableau
+    .then((singleProduct) => {
+      //si la variable enregistre par le urlSearchParams = id du tableau effectue le code suivant
+      if (id === singleProduct._id) {
+        document.getElementsByTagName(
+          "title"
+        ).innerText += `${singleProduct.name}`;
+        document.querySelector("#title").innerText += `${singleProduct.name}`;
         document.querySelector(
-          "#colors"
-        ).innerHTML += `<option value="">${color}</option>`;
+          ".item__img"
+        ).innerHTML += `<img src="${singleProduct.imageUrl}" alt="${singleProduct.altTxt}">`;
+        document.querySelector("#price").innerText += `${singleProduct.price}`;
+        document.querySelector(
+          "#description"
+        ).innerText += `${singleProduct.description}`;
+        // vue que colors est un tableau on va faire un loop pour le parcourire
+        for (let color of singleProduct.colors) {
+          document.querySelector(
+            "#colors"
+          ).innerHTML += `<option value="${color}">${color}</option>`;
+        }
       }
-    }
-  });
+      //boutton ajouter au panier
+      document
+        .querySelector("#addToCart")
+        .addEventListener("click", function () {
+          //declaration des variable pour recupere le data
+          //et le stockee dans le locastorage
+          let productQty = document.getElementById("quantity");
+          let colorChoiceInput = document.getElementById("colors");
+          let colorChoice = colorChoiceInput.value;
+          let productName = singleProduct.name;
+          let price = singleProduct.price;
+          let productQtyValue = productQty.value;
+          //declaration du tableau qui va contenire tout les valeurs
+          let choice = [id, productName, price, colorChoice, productQtyValue];
+          addProduct(choice);
+        });
+    });
+});
