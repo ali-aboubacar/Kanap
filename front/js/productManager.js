@@ -42,13 +42,13 @@ loadConfig().then((data) => {
           //et le stockee dans le locastorage
           let productQty = document.getElementById("quantity");
           let colorChoiceInput = document.getElementById("colors");
-          let colorChoice = colorChoiceInput.value;
-          let productName = singleProduct.name;
+          let color = colorChoiceInput.value;
+          //let productName = singleProduct.name;
           let price = singleProduct.price;
-          let productQtyValue = productQty.value;
+          let quantity = productQty.value;
           //declaration du tableau qui va contenire tout les valeurs
-          let choice = [id, productName, price, colorChoice, productQtyValue];
-          addProduct(choice);
+          let choice = { id, color, price, quantity };
+          addBasket(choice);
         });
     });
 });
