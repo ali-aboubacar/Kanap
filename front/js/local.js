@@ -4,13 +4,15 @@ function addBasket(product) {
   // on ajoute le produit dans le localStorage
   let basket = getBasket();
   //trouver le produit dont le id corespond a l'id du produit
-  let foundProduct = basket.find((p) => p.id == product.id);
-  if (foundProduct != undefined && foundProduct.color == product.color) {
+  let foundIndex = basket.findIndex((p) => p.id == product.id);
+  const foundProduct = basket[foundIndex];
+  if (foundProduct && foundProduct.color == product.color) {
     //si le produit existe  ajouter la quantite
-    foundProduct.quantity++;
+    foundProduct.quantity += product.quantity;
+
+    basket[foundIndex] = foundProduct;
   } else {
     // si le produit n'existe pas ajouter le produit avec une quantite initial de 1    //product.quantity = 1;
-    product.quantity = 1;
     basket.push(product);
   }
   saveBasket(basket);
@@ -35,22 +37,6 @@ function removeFromBasket(product) {
   let basket = getBasket();
   basket = basket.filter((p) => p.id != product.id); // on utilise != pour supprimer que le produit slectionner. == va supprimer tous les produit sauf celle selectionner
   saveBasket(basket);
-}
-function changeQuantity(product, quantity) {
-  // changer la quantite deja enregistrer dans le panier
-  let basket = getBasket();
-  let foundProduct = basket.find((p) => p.id == product.id); // trouver le produit selectionner
-  if (foundProduct != undefined) {
-    // si le produit existe ajouter la quantiter
-    foundProduct.quantity += quantity;
-    if (foundProduct.quantity <= 0) {
-      //si le produit a une quantiter inferieur a 0 effacer le produit du pannier
-      removeFromBasket(product);
-    } else {
-      // si non enregistrer le produit
-      saveBasket(basket);
-    }
-  }
 }
 
 function getNumberProduct() {

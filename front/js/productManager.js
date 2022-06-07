@@ -11,7 +11,7 @@ loadConfig().then((data) => {
   config = data;
 
   fetch(config.host + `/api/products/${id}`) //grace au accent grave on integre le const declarer juste avant
-    .then((data) => data.json())
+    .then((res) => res.json())
     //on recupere le produit dans un tableau
     .then((singleProduct) => {
       //si la variable enregistre par le urlSearchParams = id du tableau effectue le code suivant
