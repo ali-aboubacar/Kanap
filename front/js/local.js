@@ -4,9 +4,11 @@ function addBasket(product) {
   // on ajoute le produit dans le localStorage
   let basket = getBasket();
   //trouver le produit dont le id corespond a l'id du produit
-  let foundIndex = basket.findIndex((p) => p.id == product.id);
+  let foundIndex = basket.findIndex(
+    (p) => p.id == product.id && p.color == product.color
+  );
   const foundProduct = basket[foundIndex];
-  if (foundProduct && foundProduct.color == product.color) {
+  if (foundProduct) {
     //si le produit existe  ajouter la quantite
     foundProduct.quantity += product.quantity;
 

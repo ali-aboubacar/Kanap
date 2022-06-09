@@ -45,7 +45,7 @@ loadConfig().then((data) => {
           let color = colorChoiceInput.value;
           //let productName = singleProduct.name;
           let price = singleProduct.price;
-          let quantity = productQty.value;
+          let quantity = parseInt(productQty.value);
           //declaration du tableau qui va contenire tout les valeurs
           let choice = { id, color, price, quantity };
           addBasket(choice);

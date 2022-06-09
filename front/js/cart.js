@@ -13,7 +13,7 @@ function local(basket) {
   console.log(products);*/
   for (let item of basket) {
     // loop pour recuperer les id dans les localStorage
-    let { id, color, quantity } = item;
+    let { id, color, quantity, price } = item;
     loadConfig().then((data) => {
       config = data;
       fetch(config.host + `/api/products/${id}`) //on recu
