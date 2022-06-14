@@ -34,13 +34,25 @@ function getBasket() {
     return JSON.parse(basket);
   }
 }
-function removeFromBasket(product) {
-  // suprimer un produit par id
-  let basket = getBasket();
-  basket = basket.filter((p) => p.id != product.id); // on utilise != pour supprimer que le produit slectionner. == va supprimer tous les produit sauf celle selectionner
-  saveBasket(basket);
-}
 
+function removeFromBasket() {
+  let removeItemBtn = document.getElementsByClassName("deleteItem");
+  for (let i = 0; i < removeItemBtn.length; i++) {
+    let button = removeItemBtn[i];
+    button.addEventListener("click", function (event) {
+      let btnClicked = event.target;
+      const article =
+        btnClicked.parentElement.parentElement.parentElement.parentElement;
+      const id = article.dataset.id;
+      const color = article.dataset.color;
+      const basket = getBasket();
+      const index = basket.findIndex((p) => p.id == id && p.color == color);
+      basket.splice(index, 1);
+      saveBasket(basket);
+      article.remove();
+    });
+  }
+}
 function getNumberProduct() {
   let basket = getBasket();
   let number = 0;

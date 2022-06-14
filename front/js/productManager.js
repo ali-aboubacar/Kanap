@@ -43,12 +43,16 @@ loadConfig().then((data) => {
           let productQty = document.getElementById("quantity");
           let colorChoiceInput = document.getElementById("colors");
           let color = colorChoiceInput.value;
-          //let productName = singleProduct.name;
           let price = singleProduct.price;
           let quantity = parseInt(productQty.value);
           //declaration du tableau qui va contenire tout les valeurs
           let choice = { id, color, price, quantity };
-          addBasket(choice);
+          if (!color || !quantity) {
+            alert("la couleur et la quatiter sont obligatoir");
+          } else {
+            addBasket(choice);
+            document.location.href = "./cart.html";
+          }
         });
     });
 });

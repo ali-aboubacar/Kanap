@@ -1,28 +1,22 @@
 /* on va gere la le panier  */
-function local(basket) {
-  basket = getBasket();
+async function getAllProducts() {
   //loop pour parcourire le tableau dans le localStorage
-  /*products = loadConfig().then((data) => {
-    config = data;
-    fetch(config.host + `/api/products`)
-      .then((res) => res.json())
-      .then((allProducts) => {
-        return allProducts;
-      });
-  });
-  console.log(products);*/
+  const url = await loadConfig();
+  const res = await fetch(url.host + `/api/products`);
+  const allProducts = await res.json();
+
+  return allProducts;
+}
+async function displayBasket() {
+  const basket = getBasket();
+  const allProducts = await getAllProducts();
+  const cartItem = document.getElementById("cart__items");
+  let htmlString = "";
   for (let item of basket) {
     // loop pour recuperer les id dans les localStorage
-    let { id, color, quantity, price } = item;
-    loadConfig().then((data) => {
-      config = data;
-      fetch(config.host + `/api/products/${id}`) //on recu
-        .then((res) => res.json())
-        .then((singleProduct) => {
-          if (id == singleProduct._id) {
-            document.getElementById(
-              "cart__items"
-            ).innerHTML += `<article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
+    let { id, color, quantity } = item;
+    const singleProduct = allProducts.find((p) => p._id == id);
+    htmlString += `<article class="cart__item" data-id=${id} data-color=${color}>
                 <div class="cart__item__img">
                   <img src="${singleProduct.imageUrl}" alt="${singleProduct.altTxt}">
                 </div>
@@ -43,14 +37,32 @@ function local(basket) {
                   </div>
                 </div>
               </article>`;
-          }
-        });
-    });
-    //document.querySelectorAll(".deleteItem").innerHTML += removeFromBasket();
   }
-  //on fait un fetch pour recupere les donner dans l'api par id
-  document.getElementById("totalQuantity").innerHTML += getNumberProduct();
-  document.getElementById("totalPrice").innerHTML += getTotalPrice();
+  cartItem.innerHTML = htmlString;
+  removeFromBasket();
 }
 
-local();
+//on fait un fetch pour recupere les donner dans l'api par id
+document.getElementById("totalQuantity").innerHTML += getNumberProduct();
+document.getElementById("totalPrice").innerHTML += getTotalPrice();
+
+displayBasket();
+
+function cartForm() {
+  document
+    .querySelector('form input[type="submit"]')
+    .addEventListener("click", function () {
+      let valid = true;
+      for (let input of document.querySelectorAll("form input")) {
+        valid &= input.reportValidity();
+        if (!valid) {
+          break;
+        }
+      }
+      if (valid) {
+        alert("votre message a ete envoyer");
+        document.location.href = "./confirmation.html";
+      }
+    });
+}
+cartForm();
