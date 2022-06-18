@@ -35,40 +35,33 @@ function getBasket() {
   }
 }
 
-function removeFromBasket() {
-  let removeItemBtn = document.getElementsByClassName("deleteItem");
-  for (let i = 0; i < removeItemBtn.length; i++) {
-    let button = removeItemBtn[i];
-    button.addEventListener("click", function (event) {
-      let btnClicked = event.target;
-      const article =
-        btnClicked.parentElement.parentElement.parentElement.parentElement;
-      const id = article.dataset.id;
-      const color = article.dataset.color;
-      const basket = getBasket();
-      const index = basket.findIndex((p) => p.id == id && p.color == color);
-      basket.splice(index, 1);
+function quantityChanged() {
+  let basket = getBasket();
+  let quantityInputChange = document.getElementsByClassName("itemQuantity");
+  for (let i = 0; i < quantityInputChange.length; i++) {
+    let input = quantityInputChange[i];
+    input.addEventListener("change", function (event) {
+      let input = event.target;
+      if (isNaN(input.value) || input.value <= 0) {
+        input.value = 1;
+      }
       saveBasket(basket);
-      article.remove();
     });
   }
 }
-function getNumberProduct() {
-  let basket = getBasket();
-  let number = 0;
-  for (let product of basket) {
-    //parcourire le localStorage pour avoir le nombre de produit ajouter
-    number += product.quantity;
-  }
-  return number;
-}
 
-function getTotalPrice() {
+async function getTotalPriceAndQuantity() {
+  const allProducts = await getAllProducts();
   let basket = getBasket();
   let total = 0;
+  let quantity = 0;
   for (let product of basket) {
+    const singleProduct = allProducts.find((p) => p._id == product.id);
+    const singlePrice = singleProduct.price;
+    console.log(singlePrice);
     //parcourire le localStorage pour calculer le prix total
-    total += product.quantity * product.price;
+    total += Number(product.quantity) * Number(singlePrice);
+    quantity += Number(product.quantity);
   }
-  return total;
+  return [total, quantity];
 }

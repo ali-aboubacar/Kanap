@@ -1,8 +1,8 @@
 /* on va gere la le panier  */
 async function getAllProducts() {
-  //loop pour parcourire le tableau dans le localStorage
-  const url = await loadConfig();
-  const res = await fetch(url.host + `/api/products`);
+  //on recupere tous les produit dans l'api
+  const config = await loadConfig();
+  const res = await fetch(config.host + `/api/products`);
   const allProducts = await res.json();
 
   return allProducts;
@@ -39,30 +39,128 @@ async function displayBasket() {
               </article>`;
   }
   cartItem.innerHTML = htmlString;
-  removeFromBasket();
+  addRemoveListner();
+}
+
+function addRemoveListner() {
+  let removeItemBtn = document.getElementsByClassName("deleteItem");
+  //parcourire tous les boutton supprimer
+  for (let i = 0; i < removeItemBtn.length; i++) {
+    let button = removeItemBtn[i];
+    button.addEventListener("click", function (event) {
+      let btnClicked = event.target;
+      const article =
+        btnClicked.parentElement.parentElement.parentElement.parentElement; //localiser le parent article
+      const id = article.dataset.id; //recuperration des dataset appeler dans localStorage
+      const color = article.dataset.color;
+      const basket = getBasket();
+      //find index cherche l'id et la couleur declarer avec le dataset
+      const index = basket.findIndex((p) => p.id == id && p.color == color);
+      basket.splice(index, 1);
+      saveBasket(basket);
+      article.remove();
+      updatePriceAndQuatity();
+    });
+  }
 }
 
 //on fait un fetch pour recupere les donner dans l'api par id
-document.getElementById("totalQuantity").innerHTML += getNumberProduct();
-document.getElementById("totalPrice").innerHTML += getTotalPrice();
+const totalQuantity = document.getElementById("totalQuantity");
+const totalPrice = document.getElementById("totalPrice");
 
+async function updatePriceAndQuatity() {
+  const totalPriceAndQuantity = await getTotalPriceAndQuantity();
+  totalQuantity.innerHTML = totalPriceAndQuantity[1];
+  totalPrice.innerHTML = totalPriceAndQuantity[0];
+}
+updatePriceAndQuatity();
 displayBasket();
-
-function cartForm() {
+//validation du form
+function getValidation() {
   document
     .querySelector('form input[type="submit"]')
-    .addEventListener("click", function () {
-      let valid = true;
-      for (let input of document.querySelectorAll("form input")) {
-        valid &= input.reportValidity();
-        if (!valid) {
-          break;
-        }
+    .addEventListener("click", function (e) {
+      e.preventDefault();
+      let firstName = document.getElementById("firstName");
+      let firstNameError = document.getElementById("firstNameErrorMsg");
+      let lastName = document.getElementById("lastName");
+      let lastNameError = document.getElementById("lastNameErrorMsg");
+      let address = document.getElementById("address");
+      let addressError = document.getElementById("addressErrorMsg");
+      let city = document.getElementById("city");
+      let cityError = document.getElementById("cityErrorMsg");
+      let email = document.getElementById("email");
+      let nameRegex = /^[a-zA-Z-\s]+$/;
+      let addressRegex = /^[a-zA-Z',.\s-]{1,25}$/;
+
+      if (firstName.validity.valueMissing) {
+        firstNameError.textContent = "veuillez renseigner ce champs";
+        firstNameError.style.color = "red";
+        return;
+      } else if (nameRegex.test(firstName.value) == false) {
+        firstNameError.textContent =
+          "prenom n'accepte pas les chiffre et les symbole";
+        firstNameError.style.color = "orange";
+        return;
+      } else {
+        firstNameError.textContent = "Champ valide";
+        firstNameError.style.color = "green";
       }
-      if (valid) {
-        alert("votre message a ete envoyer");
-        document.location.href = "./confirmation.html";
+      if (address.validity.valueMissing) {
+        addressError.textContent = "veuillez renseigner ce champs";
+        addressError.style.color = "red";
+        return;
+      } else if (addressRegex.test(address.value) == false) {
+        addressError.textContent =
+          "prenom n'accepte pas les chiffre et les symbole";
+        addressError.style.color = "orange";
+        return;
+      } else {
+        addressError.textContent = "Champ valide";
+        addressError.style.color = "green";
       }
+      postData();
     });
 }
-cartForm();
+getValidation();
+
+function displayProducts() {
+  //recupere tout les produit et les comparer avec le localStorage
+  //const allProducts = await getAllProducts();
+  const basket = getBasket();
+  let productIds = [];
+  for (let item of basket) {
+    let productId = item.id;
+    //const singleProduct = allProducts.find((p) => p._id == productId);
+    //products += JSON.stringify(singleProduct._id);
+    productIds.push(productId);
+  }
+  return productIds;
+}
+async function postData() {
+  let firstName = document.getElementById("firstName");
+  let lastName = document.getElementById("lastName");
+  let address = document.getElementById("address");
+  let city = document.getElementById("city");
+  let email = document.getElementById("email");
+  //recuperer les id des produit dans le panier
+  const products = displayProducts();
+  //recupere les valeur saisie par l'utilisateur
+  const contact = {
+    firstName: firstName.value,
+    lastName: lastName.value,
+    address: address.value,
+    city: city.value,
+    email: email.value,
+  };
+  //console.log(contact, products);
+
+  const config = await loadConfig();
+  const req = await fetch(config.host + `/api/products/order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contact, products }),
+  });
+  const content = await req.json();
+  console.log(content);
+}
