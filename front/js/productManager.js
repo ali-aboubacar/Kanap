@@ -16,9 +16,7 @@ loadConfig().then((data) => {
     .then((singleProduct) => {
       //si la variable enregistre par le urlSearchParams = id du tableau effectue le code suivant
       if (id === singleProduct._id) {
-        document.getElementsByTagName(
-          "title"
-        ).innerText += `${singleProduct.name}`;
+        document.title = singleProduct.name;
         document.querySelector("#title").innerText += `${singleProduct.name}`;
         document.querySelector(
           ".item__img"
@@ -43,10 +41,9 @@ loadConfig().then((data) => {
           let productQty = document.getElementById("quantity");
           let colorChoiceInput = document.getElementById("colors");
           let color = colorChoiceInput.value;
-          let price = singleProduct.price;
           let quantity = parseInt(productQty.value);
           //declaration du tableau qui va contenire tout les valeurs
-          let choice = { id, color, price, quantity };
+          let choice = { id, color, quantity };
           if (!color || !quantity) {
             alert("la couleur et la quatiter sont obligatoir");
           } else {

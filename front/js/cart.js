@@ -7,9 +7,10 @@ async function getAllProducts() {
 
   return allProducts;
 }
+//Affichage des produit enregistrer dans le localStorage
 async function displayBasket() {
   const basket = getBasket();
-  const allProducts = await getAllProducts();
+  const allProducts = await getAllProducts(); //recuperation des produits
   const cartItem = document.getElementById("cart__items");
   let htmlString = "";
   for (let item of basket) {
@@ -40,8 +41,9 @@ async function displayBasket() {
   }
   cartItem.innerHTML = htmlString;
   addRemoveListner();
+  addQuantityChangeListener();
 }
-
+//supprimer les article du pannier
 function addRemoveListner() {
   let removeItemBtn = document.getElementsByClassName("deleteItem");
   //parcourire tous les boutton supprimer
@@ -64,17 +66,17 @@ function addRemoveListner() {
   }
 }
 
-//on fait un fetch pour recupere les donner dans l'api par id
-const totalQuantity = document.getElementById("totalQuantity");
-const totalPrice = document.getElementById("totalPrice");
-
+//mettre a jour le prix et la quantiter apres la suppression d'un element
 async function updatePriceAndQuatity() {
+  const totalQuantity = document.getElementById("totalQuantity");
+  const totalPrice = document.getElementById("totalPrice");
   const totalPriceAndQuantity = await getTotalPriceAndQuantity();
   totalQuantity.innerHTML = totalPriceAndQuantity[1];
   totalPrice.innerHTML = totalPriceAndQuantity[0];
 }
 updatePriceAndQuatity();
 displayBasket();
+
 //validation du form
 function getValidation() {
   document
@@ -92,6 +94,7 @@ function getValidation() {
       let email = document.getElementById("email");
       let nameRegex = /^[a-zA-Z-\s]+$/;
       let addressRegex = /^[a-zA-Z',.\s-]{1,25}$/;
+      let cityRegex = /^[[:alpha:]]([-' ]?[[:alpha:]])*$/;
 
       if (firstName.validity.valueMissing) {
         firstNameError.textContent = "veuillez renseigner ce champs";
@@ -119,32 +122,20 @@ function getValidation() {
         addressError.textContent = "Champ valide";
         addressError.style.color = "green";
       }
-      postData();
+      postInfoAndContact();
     });
 }
 getValidation();
 
-function displayProducts() {
-  //recupere tout les produit et les comparer avec le localStorage
-  //const allProducts = await getAllProducts();
-  const basket = getBasket();
-  let productIds = [];
-  for (let item of basket) {
-    let productId = item.id;
-    //const singleProduct = allProducts.find((p) => p._id == productId);
-    //products += JSON.stringify(singleProduct._id);
-    productIds.push(productId);
-  }
-  return productIds;
-}
-async function postData() {
+//recupere les donner saisie par l'utilisateur et les produit dans le pannier
+function getUserInfoAndProducts() {
   let firstName = document.getElementById("firstName");
   let lastName = document.getElementById("lastName");
   let address = document.getElementById("address");
   let city = document.getElementById("city");
   let email = document.getElementById("email");
   //recuperer les id des produit dans le panier
-  const products = displayProducts();
+  const products = getProductsId();
   //recupere les valeur saisie par l'utilisateur
   const contact = {
     firstName: firstName.value,
@@ -153,14 +144,20 @@ async function postData() {
     city: city.value,
     email: email.value,
   };
+  return { products, contact };
   //console.log(contact, products);
-
+}
+async function postInfoAndContact() {
+  const userInfo = getUserInfoAndProducts();
   const config = await loadConfig();
   const req = await fetch(config.host + `/api/products/order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contact, products }),
+    body: JSON.stringify(userInfo),
   });
   const content = await req.json();
-  console.log(content);
+  if (content) {
+    const orderId = content.orderId;
+    document.location.href = `./confirmation.html?orderId=${orderId}`;
+  }
 }

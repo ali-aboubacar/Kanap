@@ -19,8 +19,8 @@ function addBasket(product) {
   }
   saveBasket(basket);
 }
+//enregistrer le produit dans le localStorage
 function saveBasket(basket) {
-  // enregistrement du produit
   localStorage.setItem("kanapOpcLocalStorage", JSON.stringify(basket));
 }
 function getBasket() {
@@ -35,21 +35,20 @@ function getBasket() {
   }
 }
 
-function quantityChanged() {
+function addQuantityChangeListener() {
   let basket = getBasket();
   let quantityInputChange = document.getElementsByClassName("itemQuantity");
   for (let i = 0; i < quantityInputChange.length; i++) {
-    let input = quantityInputChange[i];
-    input.addEventListener("change", function (event) {
-      let input = event.target;
-      if (isNaN(input.value) || input.value <= 0) {
-        input.value = 1;
-      }
+    let quantity = quantityInputChange[i];
+    quantity.addEventListener("change", function (event) {
+      let quantity = event.target;
+      const index = basket.findIndex((p) => p.id == quantity);
+      basket.push(index, quantity);
       saveBasket(basket);
     });
   }
 }
-
+//calculer la quantiter et le prix total
 async function getTotalPriceAndQuantity() {
   const allProducts = await getAllProducts();
   let basket = getBasket();
@@ -64,4 +63,15 @@ async function getTotalPriceAndQuantity() {
     quantity += Number(product.quantity);
   }
   return [total, quantity];
+}
+
+// recuperation des ids dans le local
+function getProductsId() {
+  const basket = getBasket();
+  let productIds = [];
+  for (let item of basket) {
+    let productId = item.id;
+    productIds.push(productId);
+  }
+  return productIds;
 }
