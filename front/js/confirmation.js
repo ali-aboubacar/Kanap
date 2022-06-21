@@ -4,6 +4,6 @@ function displayOrderId() {
   const searchParams = new URLSearchParams(orderIdString);
   const orderId = searchParams.get("orderId");
   const order = document.getElementById("orderId");
-  order.innerText = orderId;
+  order.textContent = orderId;
 }
 displayOrderId();

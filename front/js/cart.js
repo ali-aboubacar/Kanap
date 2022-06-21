@@ -12,6 +12,7 @@ async function displayBasket() {
   const basket = getBasket();
   const allProducts = await getAllProducts(); //recuperation des produits
   const cartItem = document.getElementById("cart__items");
+  //on declare un string vide qui va se remplire a chaque passage de boucle
   let htmlString = "";
   for (let item of basket) {
     // loop pour recuperer les id dans les localStorage
@@ -53,7 +54,7 @@ function addRemoveListner() {
       let btnClicked = event.target;
       const article =
         btnClicked.parentElement.parentElement.parentElement.parentElement; //localiser le parent article
-      const id = article.dataset.id; //recuperration des dataset appeler dans localStorage
+      const id = article.dataset.id; //recuperration des dataset de l'element clicker
       const color = article.dataset.color;
       const basket = getBasket();
       //find index cherche l'id et la couleur declarer avec le dataset
@@ -65,18 +66,43 @@ function addRemoveListner() {
     });
   }
 }
+//changer la quatiter dans le panier directement
+function addQuantityChangeListener() {
+  let basket = getBasket();
+  let quantityInputChange = document.getElementsByClassName("itemQuantity");
+  for (let i = 0; i < quantityInputChange.length; i++) {
+    //parcourire tout les champs des input quantity
+    let quantityChange = quantityInputChange[i];
+    quantityChange.addEventListener("change", function (event) {
+      let newQuantity = event.target;
+      // recuperation du dataset
+      const article =
+        newQuantity.parentElement.parentElement.parentElement.parentElement;
+      const id = article.dataset.id;
+      //recherche du produit dans le localstorage
+      let findIndex = basket.findIndex((p) => p.id == id);
+      const foundProduct = basket[findIndex];
+      //si foundProduct est true ajouter la quantite
+      if (foundProduct) {
+        foundProduct.quantity++;
+      }
+      saveBasket(basket);
+      updatePriceAndQuatity();
+    });
+  }
+}
 
 //mettre a jour le prix et la quantiter apres la suppression d'un element
 async function updatePriceAndQuatity() {
   const totalQuantity = document.getElementById("totalQuantity");
   const totalPrice = document.getElementById("totalPrice");
+  //recuperation de la fonction getTotalPrice And Quantity qui retoune un tableau
   const totalPriceAndQuantity = await getTotalPriceAndQuantity();
   totalQuantity.innerHTML = totalPriceAndQuantity[1];
   totalPrice.innerHTML = totalPriceAndQuantity[0];
 }
 updatePriceAndQuatity();
 displayBasket();
-
 //validation du form
 function getValidation() {
   document
@@ -147,8 +173,10 @@ function getUserInfoAndProducts() {
   return { products, contact };
   //console.log(contact, products);
 }
+//envoi des donner dans l'api
 async function postInfoAndContact() {
   const userInfo = getUserInfoAndProducts();
+  //recuperation du load config qui recupere config.json
   const config = await loadConfig();
   const req = await fetch(config.host + `/api/products/order`, {
     method: "POST",
@@ -156,8 +184,10 @@ async function postInfoAndContact() {
     body: JSON.stringify(userInfo),
   });
   const content = await req.json();
+  //si la reponse et true recuperer l'oderId dans la reponse
   if (content) {
     const orderId = content.orderId;
+    //passer l'orderId dans l'Url pour pouvoir le recupere dans la page confirmation
     document.location.href = `./confirmation.html?orderId=${orderId}`;
   }
 }

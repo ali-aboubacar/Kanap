@@ -14,7 +14,7 @@ function addBasket(product) {
 
     basket[foundIndex] = foundProduct;
   } else {
-    // si le produit n'existe pas ajouter le produit avec une quantite initial de 1    //product.quantity = 1;
+    // si le produit n'existe pas ajouter le produit
     basket.push(product);
   }
   saveBasket(basket);
@@ -34,20 +34,6 @@ function getBasket() {
     return JSON.parse(basket);
   }
 }
-
-function addQuantityChangeListener() {
-  let basket = getBasket();
-  let quantityInputChange = document.getElementsByClassName("itemQuantity");
-  for (let i = 0; i < quantityInputChange.length; i++) {
-    let quantity = quantityInputChange[i];
-    quantity.addEventListener("change", function (event) {
-      let quantity = event.target;
-      const index = basket.findIndex((p) => p.id == quantity);
-      basket.push(index, quantity);
-      saveBasket(basket);
-    });
-  }
-}
 //calculer la quantiter et le prix total
 async function getTotalPriceAndQuantity() {
   const allProducts = await getAllProducts();
@@ -57,7 +43,6 @@ async function getTotalPriceAndQuantity() {
   for (let product of basket) {
     const singleProduct = allProducts.find((p) => p._id == product.id);
     const singlePrice = singleProduct.price;
-    console.log(singlePrice);
     //parcourire le localStorage pour calculer le prix total
     total += Number(product.quantity) * Number(singlePrice);
     quantity += Number(product.quantity);
