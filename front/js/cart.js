@@ -85,6 +85,9 @@ function addQuantityChangeListener() {
       //si foundProduct est true ajouter la quantite
       if (foundProduct) {
         foundProduct.quantity++;
+        if (foundProduct) {
+          foundProduct.quantity = Number(quantityChange.value);
+        }
       }
       saveBasket(basket);
       updatePriceAndQuatity();
@@ -117,11 +120,11 @@ function getValidation() {
       let addressError = document.getElementById("addressErrorMsg");
       let city = document.getElementById("city");
       let cityError = document.getElementById("cityErrorMsg");
-      let email = document.getElementById("email");
       let nameRegex = /^[a-zA-Z-\s]+$/;
-      let addressRegex = /^[a-zA-Z',.\s-]{1,25}$/;
-      let cityRegex = /^[[:alpha:]]([-' ]?[[:alpha:]])*$/;
-
+      let addressRegex = /^[#.0-9a-zA-Z\s,-]+$/;
+      let cityRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
+      // verification des champs de saisie avec un regex
+      //verification du champ prenom
       if (firstName.validity.valueMissing) {
         firstNameError.textContent = "veuillez renseigner ce champs";
         firstNameError.style.color = "red";
@@ -135,18 +138,47 @@ function getValidation() {
         firstNameError.textContent = "Champ valide";
         firstNameError.style.color = "green";
       }
+      //verification du champ nom
+      if (lastName.validity.valueMissing) {
+        lastNameError.textContent = "veuillez renseigner ce champs";
+        lastNameError.style.color = "red";
+        return;
+      } else if (nameRegex.test(lastName.value) == false) {
+        lastNameError.textContent =
+          "le nom n'accepte pas les chiffre et les symbole";
+        lastNameError.style.color = "orange";
+        return;
+      } else {
+        lastNameError.textContent = "Champ valide";
+        lastNameError.style.color = "green";
+      }
+      //verification du champs address
       if (address.validity.valueMissing) {
         addressError.textContent = "veuillez renseigner ce champs";
         addressError.style.color = "red";
         return;
       } else if (addressRegex.test(address.value) == false) {
         addressError.textContent =
-          "prenom n'accepte pas les chiffre et les symbole";
+          "format du saisie inccorect l'address commence avec un nombres";
         addressError.style.color = "orange";
         return;
       } else {
         addressError.textContent = "Champ valide";
         addressError.style.color = "green";
+      }
+      //verification du champ city
+      if (city.validity.valueMissing) {
+        cityError.textContent = "veuillez renseigner ce champs";
+        cityError.style.color = "red";
+        return;
+      } else if (cityRegex.test(city.value) == false) {
+        cityError.textContent =
+          "le nom n'accepte pas les chiffre et les symbole";
+        cityError.style.color = "orange";
+        return;
+      } else {
+        cityError.textContent = "Champ valide";
+        cityError.style.color = "green";
       }
       postInfoAndContact();
     });
